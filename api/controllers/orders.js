@@ -4,38 +4,9 @@ const Product = require("../models/product");
 const { productCount } = require("../controllers/products");
 
 exports.getAllOrders = (req, res, next) => {
-  if (req.userData.userType == "user") {
-    console.log(req.userData);
-    Order.find({ user: req.userData.userId })
-      .select()
-      .sort("-created_at")
-      .populate({
-        path: "product",
-        populate: {
-          path: "category",
-        },
-      })
-      .populate("user")
-      .exec()
-      .then((orders) => {
-        return res.status(200).json({
-          count: orders.length,
-          orders: orders,
-        });
-      })
-      .catch((error) => {
-        next(error);
-      });
-    return;
-  }
-
-  let o;
-  if (req.userData.userType == "admin" && req.query.all) o = Order.find();
-  else {
-    o = Order.find({ user: req.userData.userId });
-  }
-
-  o.select()
+  Order.find({ user: req.userData.userId, status: "pending" })
+    .select()
+    .sort("-created_at")
     .populate({
       path: "product",
       populate: {
@@ -43,10 +14,9 @@ exports.getAllOrders = (req, res, next) => {
       },
     })
     .populate("user")
-    .sort("-created_at")
     .exec()
     .then((orders) => {
-      res.status(200).json({
+      return res.status(200).json({
         count: orders.length,
         orders: orders,
       });
@@ -60,8 +30,6 @@ exports.saveOrders = (req, res, next) => {
   let firstName = req.body.firstName;
   let lastName = req.body.lastName;
   let address = req.body.address;
-
-  console.log(req.body.products);
 
   let carts;
   try {
@@ -127,6 +95,21 @@ exports.getOneOrder = (req, res, next) => {
 exports.updateOneOrder = (req, res, next) => {
   const orderId = req.params.orderId;
   Order.update({ _id: orderId }, { $set: req.body })
+    .exec()
+    .then((result) => {
+      return res.status(200).json({
+        message: "Updated Order Successfully!",
+        result: result,
+      });
+    })
+    .catch((error) => {
+      next(error);
+    });
+};
+
+exports.updateManyOrder = (req, res, next) => {
+  const userID = req.userData.userId;
+  Order.updateMany({ user: userID }, { $set: { status: "completed" } })
     .exec()
     .then((result) => {
       return res.status(200).json({
