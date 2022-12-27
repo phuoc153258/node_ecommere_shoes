@@ -184,3 +184,15 @@ exports.updateProfileUser = async (req, res, next) => {
   await user.save();
   res.send("Update user success");
 };
+
+exports.updatePassword = async (req, res, next) => {
+  let user = await User.findOne({ email: req.userData.email });
+  const { oldPassword, newPassword } = req.body;
+  if (passwordHash.verify(oldPassword, user.password)) {
+    user.password = passwordHash.generate(newPassword);
+    await user.save();
+    res.send("Change password success");
+  } else {
+    res.send("Change password failed");
+  }
+};

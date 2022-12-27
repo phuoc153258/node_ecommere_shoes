@@ -13,6 +13,12 @@ router.delete("/:userId", checkAuths.adminAuth, UserController.deleteUser);
 
 router.get("", checkAuths.adminAuth, UserController.getAll);
 
+router.patch(
+  "/me/password",
+  checkAuths.userAuth,
+  UserController.updatePassword
+);
+
 router.put("/me", checkAuths.userAuth, UserController.updateProfileUser);
 
 router.get("/me", checkAuths.userAuth, UserController.getProfile);
