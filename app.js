@@ -13,7 +13,7 @@ const { adminAuth } = require("./api/middleware/check-auth");
 require("dotenv").config();
 
 mongoose.connect(
-  "mongodb+srv://unclerice:023657@cluster0.q7mqbnf.mongodb.net/Ecommerce-Shop?retryWrites=true&w=majority",
+  "mongodb+srv://phuoc153258:Outisde2@cluster0.hwttyjb.mongodb.net/Shop-Shoes",
   { useNewUrlParser: true, useUnifiedTopology: true }
 );
 

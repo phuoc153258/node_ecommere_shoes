@@ -171,3 +171,16 @@ exports.getTotalUserCount = async function () {
     return r[0].userCount;
   });
 };
+
+exports.updateProfileUser = async (req, res, next) => {
+  let user = await User.findOne({ email: req.userData.email });
+  const { name, email, phone } = req.body;
+  if (name) user.name = name;
+
+  if (email) user.email = email;
+
+  if (phone) user.phone = phone;
+
+  await user.save();
+  res.send("Update user success");
+};
