@@ -1,19 +1,19 @@
-const mongoose = require("mongoose");
-const Order = require("../models/order");
-const Product = require("../models/product");
-const { productCount } = require("../controllers/products");
+const mongoose = require('mongoose');
+const Order = require('../models/order');
+const Product = require('../models/product');
+const { productCount } = require('../controllers/products');
 
 exports.getAllOrders = (req, res, next) => {
-  Order.find({ user: req.userData.userId, status: "pending" })
+  Order.find({ user: req.userData.userId, status: 'pending' })
     .select()
-    .sort("-created_at")
+    .sort('-created_at')
     .populate({
-      path: "product",
+      path: 'product',
       populate: {
-        path: "category",
+        path: 'category',
       },
     })
-    .populate("user")
+    .populate('user')
     .exec()
     .then((orders) => {
       return res.status(200).json({
@@ -30,32 +30,36 @@ exports.saveOrders = (req, res, next) => {
   let firstName = req.body.firstName;
   let lastName = req.body.lastName;
   let address = req.body.address;
-
   let carts;
+
+  console.log(req.body.products);
+  // const products = JSON.parse(text);
+  // console.log(products);
   try {
-    carts = JSON.parse(JSON.stringify(req.body.products));
+    carts = JSON.parse(req.body.products);
     if (!firstName.trim() || !lastName.trim() || !address.trim()) {
       res.status(400);
       res.json({
         error: {
-          message: "firstName , lastName , address Required..",
+          message: 'firstName , lastName , address Required..',
         },
       });
       return;
     }
   } catch (error) {
+    console.log(error);
     res.status(400);
     if (!carts) {
       res.json({
         error: {
-          message: "Products Required..",
+          message: 'Products Required..',
         },
       });
       return;
     }
     res.json({
       error: {
-        message: "firstName , lastName , address Required..",
+        message: 'firstName , lastName , address Required..',
       },
     });
     return;
@@ -69,7 +73,7 @@ exports.saveOrders = (req, res, next) => {
   Order.create(orders)
     .then((orders) => {
       return res.status(201).json({
-        message: "Orders was created",
+        message: 'Orders was created',
         orders,
       });
     })
@@ -82,7 +86,7 @@ exports.getOneOrder = (req, res, next) => {
   const orderId = req.params.orderId;
   Order.findById(orderId)
     .select()
-    .populate("product user")
+    .populate('product user')
     .exec()
     .then((order) => {
       return res.status(201).json(order);
@@ -98,7 +102,7 @@ exports.updateOneOrder = (req, res, next) => {
     .exec()
     .then((result) => {
       return res.status(200).json({
-        message: "Updated Order Successfully!",
+        message: 'Updated Order Successfully!',
         result: result,
       });
     })
@@ -109,11 +113,11 @@ exports.updateOneOrder = (req, res, next) => {
 
 exports.updateManyOrder = (req, res, next) => {
   const userID = req.userData.userId;
-  Order.updateMany({ user: userID }, { $set: { status: "completed" } })
+  Order.updateMany({ user: userID }, { $set: { status: 'completed' } })
     .exec()
     .then((result) => {
       return res.status(200).json({
-        message: "Updated Order Successfully!",
+        message: 'Updated Order Successfully!',
         result: result,
       });
     })
@@ -128,7 +132,7 @@ exports.deleteOneOrder = (req, res, next) => {
     .exec()
     .then((result) => {
       return res.status(200).json({
-        message: "Deleted order!",
+        message: 'Deleted order!',
         result: result,
       });
     })
@@ -165,10 +169,10 @@ async function getLast30DaysOrdersAmount() {
     },
     {
       $group: {
-        _id: "",
+        _id: '',
         totalAmount: {
           $sum: {
-            $multiply: ["$price", "$quantity"],
+            $multiply: ['$price', '$quantity'],
           },
         },
       },
@@ -192,7 +196,7 @@ async function getLast30DaysOrderCount() {
       },
     },
     {
-      $count: "orderCount",
+      $count: 'orderCount',
     },
   ]).then((r) => {
     console.log(r);
@@ -203,7 +207,7 @@ async function getLast30DaysOrderCount() {
 async function getTotalOrdersCount() {
   return Order.aggregate([
     {
-      $count: "orderCount",
+      $count: 'orderCount',
     },
   ]).then((r) => {
     console.log(r);
@@ -226,13 +230,13 @@ async function getLast30DaysProductWiseSelling() {
     },
     {
       $group: {
-        _id: "$product",
+        _id: '$product',
         quantity: {
-          $sum: "$quantity",
+          $sum: '$quantity',
         },
         totalSale: {
           $sum: {
-            $multiply: ["$quantity", "$price"],
+            $multiply: ['$quantity', '$price'],
           },
         },
       },
@@ -263,8 +267,8 @@ exports.summary = async function (req, res, next) {
   }
 };
 
-const { getLast30DaysRegisteredUser } = require("../controllers/user");
-const { getTotalUserCount } = require("../controllers/user");
+const { getLast30DaysRegisteredUser } = require('../controllers/user');
+const { getTotalUserCount } = require('../controllers/user');
 
 async function _summary() {
   let pc = await productCount();
